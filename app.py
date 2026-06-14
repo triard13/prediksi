@@ -167,6 +167,26 @@ with tab2:
         if buy_candidates:
             st.success(f"Ditemukan {len(buy_candidates)} saham dengan sinyal Beli potensial berdasarkan parameter saat ini!")
             st.dataframe(pd.DataFrame(buy_candidates))
+            
+            if st.button("Kirim Hasil ke Telegram 🚀"):
+                from telegram_bot import send_telegram_message
+                import datetime
+                
+                today = datetime.datetime.now().strftime("%d %b %Y")
+                message = f"📊 <b>Sinyal Saham IHSG via Web App</b> ({today})\n\n"
+                message += "Daftar saham yang disaring saat ini:\n"
+                
+                for cand in buy_candidates:
+                    message += f"✅ <b>{cand['Ticker']}</b> (Rp {cand['Close Price']:,.0f}) - {cand['Signal Type']}\n"
+                
+                message += f"\n<i>Parameter: SMA Cepat={sma_fast_input}, Lambat={sma_slow_input}, RSI={rsi_len_input}</i>"
+                
+                try:
+                    send_telegram_message(message)
+                    st.success("Pesan terkirim ke Telegram Anda!")
+                except Exception as e:
+                    st.error(f"Gagal mengirim pesan: {e}")
+                    
         else:
             st.info("Tidak ada sinyal Beli pada saham yang dipindai saat ini.")
 
