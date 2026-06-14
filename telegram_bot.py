@@ -14,7 +14,7 @@ TELEGRAM_CHAT_ID = "843142600"
 
 def send_telegram_message(message):
     """Mengirim pesan ke Telegram."""
-    if TELEGRAM_BOT_TOKEN == "8973650359:AAG052i9szjbfRRi_W0NS-3ATlnLBDprlaI" or TELEGRAM_CHAT_ID == "843142600":
+    if TELEGRAM_BOT_TOKEN == "ISI_TOKEN_BOT_ANDA_DI_SINI" or not TELEGRAM_BOT_TOKEN:
         print("Peringatan: Token Bot atau Chat ID belum diisi. Pesan tidak dikirim.")
         print(f"Pesan yang seharusnya dikirim:\n{message}")
         return
