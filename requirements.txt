@@ -7,3 +7,4 @@ plotly
 xgboost
 vaderSentiment
 requests
+python-dotenv

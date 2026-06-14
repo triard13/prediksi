@@ -1,16 +1,21 @@
 import requests
 import datetime
 import pandas as pd
+import os
+from dotenv import load_dotenv
 from data_fetcher import get_ihsg_tickers, fetch_stock_data
 from signals import calculate_technical_indicators, generate_signals
 import time
 
+# Load variables from .env file
+load_dotenv()
+
 # ==========================================
 # PENGATURAN BOT TELEGRAM
-# Masukkan Token dari @BotFather dan Chat ID Anda di sini
+# Mengambil dari file .env agar aman dan tidak bocor di GitHub
 # ==========================================
-TELEGRAM_BOT_TOKEN = "8973650359:AAG052i9szjbfRRi_W0NS-3ATlnLBDprlaI"
-TELEGRAM_CHAT_ID = "843142600"
+TELEGRAM_BOT_TOKEN = os.getenv("TELEGRAM_BOT_TOKEN", "ISI_TOKEN_BOT_ANDA_DI_SINI")
+TELEGRAM_CHAT_ID = os.getenv("TELEGRAM_CHAT_ID", "ISI_CHAT_ID_ANDA_DI_SINI")
 
 def send_telegram_message(message):
     """Mengirim pesan ke Telegram."""

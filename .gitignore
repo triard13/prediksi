@@ -1,0 +1,11 @@
+# Environments
+.env
+venv/
+env/
+__pycache__/
+
+# Streamlit
+.streamlit/
+
+# App Data
+portfolio.json
