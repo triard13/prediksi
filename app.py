@@ -55,7 +55,6 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 st.title("📈 Sistem Analitik Saham IHSG Pro")
-st.markdown("Prototipe tahap 3: Screener, Backtesting Dinamis, Sentimen Berita, dan Portofolio.")
 
 # Ambil data makro sekali saja untuk efisiensi
 macro_df = fetch_macro_data()
@@ -138,6 +137,17 @@ with tab1:
         rsi_col_name = f'RSI_{rsi_len_input}'
         last_rsi = df[rsi_col_name].iloc[-1] if rsi_col_name in df.columns else 0
         col4.metric(f"RSI ({rsi_len_input})", f"{last_rsi:.1f}")
+
+        st.markdown("---")
+        st.subheader("✨ Analisis AI (Gemini)")
+        st.write("Dapatkan ringkasan sentimen, teknikal, dan rekomendasi dari Google Gemini.")
+        if st.button("Minta Pendapat AI tentang Saham ini"):
+            with st.spinner("🤖 AI sedang memproses data pasar..."):
+                from ai_analyzer import generate_ai_analysis
+                prediction_text = f"{ml_pred_label} (Probabilitas: {ml_pred_prob:.1f}%)"
+                ai_response = generate_ai_analysis(selected_ticker, last_close, prediction_text, df, news_sentiment)
+                st.info(ai_response)
+        st.markdown("---")
 
         st.subheader("Grafik Harga & Indikator")
         fig = go.Figure()
