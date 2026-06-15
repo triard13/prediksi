@@ -1,12 +1,30 @@
 import streamlit as st
 import plotly.graph_objects as go
 import pandas as pd
+import os
 from data_fetcher import get_ihsg_tickers, fetch_stock_data, fetch_fundamental_data, fetch_macro_data, fetch_news_sentiment
 from signals import calculate_technical_indicators, generate_signals, train_and_predict_ml, run_backtest
 from portfolio_manager import load_portfolio, add_to_portfolio, remove_from_portfolio
 
 # Setup halaman
 st.set_page_config(page_title="Sistem Analitik Saham IHSG Pro", layout="wide")
+
+# Sistem Otentikasi (Password)
+APP_PASSWORD = os.environ.get("APP_PASSWORD", "123456") # Default 123456 jika belum diatur di .env / Secrets
+
+if "authenticated" not in st.session_state:
+    st.session_state["authenticated"] = False
+
+if not st.session_state["authenticated"]:
+    st.title("🔒 Aplikasi Terkunci")
+    password_input = st.text_input("Masukkan PIN / Password:", type="password")
+    if st.button("Masuk"):
+        if password_input == APP_PASSWORD:
+            st.session_state["authenticated"] = True
+            st.rerun()
+        else:
+            st.error("Password salah!")
+    st.stop() # Mencegah kode di bawahnya berjalan jika belum login
 
 # CSS Kustom untuk memperbaiki teks metrik yang terpotong
 st.markdown("""
