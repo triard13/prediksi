@@ -1,42 +1,59 @@
-import json
 import os
+from supabase import create_client, Client
+from dotenv import load_dotenv
 
-PORTFOLIO_FILE = "portfolio.json"
+load_dotenv()
+
+SUPABASE_URL = os.environ.get("SUPABASE_URL", "ISI_URL_SUPABASE_ANDA")
+SUPABASE_KEY = os.environ.get("SUPABASE_KEY", "ISI_KEY_SUPABASE_ANDA")
+
+def get_supabase_client() -> Client:
+    # Mengembalikan dummy client jika tidak dikonfigurasi, agar tidak error di prototipe
+    return create_client(SUPABASE_URL, SUPABASE_KEY)
 
 def load_portfolio():
-    if not os.path.exists(PORTFOLIO_FILE):
+    try:
+        supabase = get_supabase_client()
+        response = supabase.table("portfolio").select("*").execute()
+        return response.data
+    except Exception as e:
+        print(f"Error loading portfolio dari Supabase: {e}")
         return []
-    with open(PORTFOLIO_FILE, "r") as f:
-        try:
-            return json.load(f)
-        except:
-            return []
-
-def save_portfolio(portfolio_list):
-    with open(PORTFOLIO_FILE, "w") as f:
-        json.dump(portfolio_list, f, indent=4)
 
 def add_to_portfolio(ticker, shares, buy_price):
-    portfolio = load_portfolio()
-    # Check if already exists
-    for item in portfolio:
-        if item['ticker'] == ticker:
-            # Update average price and shares
+    try:
+        supabase = get_supabase_client()
+        # Cek apakah ticker sudah ada
+        response = supabase.table("portfolio").select("*").eq("ticker", ticker).execute()
+        existing_data = response.data
+        
+        if existing_data and len(existing_data) > 0:
+            item = existing_data[0]
+            # Update rata-rata harga dan jumlah
             total_cost = (item['shares'] * item['buy_price']) + (shares * buy_price)
-            item['shares'] += shares
-            item['buy_price'] = total_cost / item['shares']
-            save_portfolio(portfolio)
-            return True
+            new_shares = item['shares'] + shares
+            new_buy_price = total_cost / new_shares
             
-    portfolio.append({
-        "ticker": ticker,
-        "shares": shares,
-        "buy_price": buy_price
-    })
-    save_portfolio(portfolio)
-    return True
+            supabase.table("portfolio").update({
+                "shares": new_shares,
+                "buy_price": new_buy_price
+            }).eq("ticker", ticker).execute()
+        else:
+            # Tambahkan data baru
+            supabase.table("portfolio").insert({
+                "ticker": ticker,
+                "shares": shares,
+                "buy_price": buy_price
+            }).execute()
+        return True
+    except Exception as e:
+        print(f"Error adding to portfolio di Supabase: {e}")
+        return False
 
 def remove_from_portfolio(ticker):
-    portfolio = load_portfolio()
-    portfolio = [item for item in portfolio if item['ticker'] != ticker]
-    save_portfolio(portfolio)
+    try:
+        supabase = get_supabase_client()
+        supabase.table("portfolio").delete().eq("ticker", ticker).execute()
+    except Exception as e:
+        print(f"Error removing from portfolio di Supabase: {e}")
+
