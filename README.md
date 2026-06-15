@@ -104,6 +104,3 @@ Dengan menggunakan sistem ini, pengguna diharapkan dapat:
 
 ## ⚠️ Disklaimer (Disclaimer)
 *Aplikasi ini dibuat murni untuk tujuan edukasi, riset, dan analisis informasi. Keputusan investasi dan *trading* di pasar modal mengandung risiko tinggi. Prediksi *Machine Learning* dan sinyal teknikal tidak menjamin keuntungan di masa depan. Pengembang tidak bertanggung jawab atas kerugian finansial yang mungkin timbul dari penggunaan aplikasi ini.*
-
----
-*Dibuat dengan ❤️ untuk investor cerdas IHSG.*
