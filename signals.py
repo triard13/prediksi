@@ -1,5 +1,4 @@
 import pandas as pd
-import pandas_ta as ta
 import numpy as np
 from sklearn.ensemble import RandomForestClassifier
 try:
@@ -8,31 +7,40 @@ except ImportError:
     XGBClassifier = None
 
 def calculate_technical_indicators(df, sma_fast=20, sma_slow=50, rsi_len=14):
-    """Menghitung indikator teknikal dasar"""
+    """Menghitung indikator teknikal dasar secara manual tanpa pandas_ta"""
     if df.empty or len(df) < 50:
         return df
         
     # Moving Averages (Trend)
-    df[f'SMA_{sma_fast}'] = ta.sma(df['Close'], length=sma_fast)
-    df[f'SMA_{sma_slow}'] = ta.sma(df['Close'], length=sma_slow)
+    df[f'SMA_{sma_fast}'] = df['Close'].rolling(window=sma_fast).mean()
+    df[f'SMA_{sma_slow}'] = df['Close'].rolling(window=sma_slow).mean()
     
     # Relative Strength Index (Momentum)
-    df[f'RSI_{rsi_len}'] = ta.rsi(df['Close'], length=rsi_len)
+    delta = df['Close'].diff()
+    gain = (delta.where(delta > 0, 0)).rolling(window=rsi_len).mean()
+    loss = (-delta.where(delta < 0, 0)).rolling(window=rsi_len).mean()
+    rs = gain / loss
+    df[f'RSI_{rsi_len}'] = 100 - (100 / (1 + rs))
     
     # MACD
-    macd = ta.macd(df['Close'], fast=12, slow=26, signal=9)
-    if macd is not None:
-        df = pd.concat([df, macd], axis=1)
+    ema_fast = df['Close'].ewm(span=12, adjust=False).mean()
+    ema_slow = df['Close'].ewm(span=26, adjust=False).mean()
+    df['MACD_12_26_9'] = ema_fast - ema_slow
+    df['MACDs_12_26_9'] = df['MACD_12_26_9'].ewm(span=9, adjust=False).mean()
+    df['MACDh_12_26_9'] = df['MACD_12_26_9'] - df['MACDs_12_26_9']
         
     # Bollinger Bands
-    bbands = ta.bbands(df['Close'], length=sma_fast, std=2)
-    if bbands is not None:
-        df = pd.concat([df, bbands], axis=1)
+    sma = df['Close'].rolling(window=sma_fast).mean()
+    std = df['Close'].rolling(window=sma_fast).std()
+    df[f'BBM_{sma_fast}_2.0'] = sma
+    df[f'BBU_{sma_fast}_2.0'] = sma + (std * 2)
+    df[f'BBL_{sma_fast}_2.0'] = sma - (std * 2)
         
     # Stochastic Oscillator
-    stoch = ta.stoch(df['High'], df['Low'], df['Close'], k=14, d=3, smooth_k=3)
-    if stoch is not None:
-        df = pd.concat([df, stoch], axis=1)
+    low_14 = df['Low'].rolling(window=14).min()
+    high_14 = df['High'].rolling(window=14).max()
+    df['STOCHk_14_3_3'] = 100 * ((df['Close'] - low_14) / (high_14 - low_14))
+    df['STOCHd_14_3_3'] = df['STOCHk_14_3_3'].rolling(window=3).mean()
         
     return df
 
