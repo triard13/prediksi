@@ -26,7 +26,7 @@ if not st.session_state["authenticated"]:
             st.error("Password salah!")
     st.stop() # Mencegah kode di bawahnya berjalan jika belum login
 
-# CSS Kustom untuk memperbaiki teks metrik yang terpotong
+# CSS Kustom untuk memperbaiki teks metrik dan membuat tata letak responsif (mobile-friendly)
 st.markdown("""
 <style>
 [data-testid="stMetricValue"] > div {
@@ -34,6 +34,22 @@ st.markdown("""
     word-break: break-word;
     font-size: 1.6rem !important; 
     line-height: 1.2;
+}
+
+/* --- Pengaturan Responsif untuk HP / Layar Kecil --- */
+@media (max-width: 768px) {
+    /* Paksa semua kolom berdampingan menjadi tersusun ke bawah (vertikal) */
+    div[data-testid="column"] {
+        width: 100% !important;
+        flex: 1 1 100% !important;
+        min-width: 100% !important;
+        margin-bottom: 1rem;
+    }
+    
+    /* Sesuaikan sedikit ukuran huruf metrik agar tidak terlalu besar di HP */
+    [data-testid="stMetricValue"] > div {
+        font-size: 1.3rem !important;
+    }
 }
 </style>
 """, unsafe_allow_html=True)
