@@ -2,6 +2,10 @@ import streamlit as st
 import plotly.graph_objects as go
 import pandas as pd
 import os
+from dotenv import load_dotenv
+
+# Load file .env agar os.environ bisa membaca GEMINI_API_KEY
+load_dotenv()
 from data_fetcher import get_ihsg_tickers, fetch_stock_data, fetch_fundamental_data, fetch_macro_data, fetch_news_sentiment
 from signals import calculate_technical_indicators, generate_signals, train_and_predict_ml, run_backtest
 from portfolio_manager import load_portfolio, add_to_portfolio, remove_from_portfolio
@@ -137,17 +141,6 @@ with tab1:
         rsi_col_name = f'RSI_{rsi_len_input}'
         last_rsi = df[rsi_col_name].iloc[-1] if rsi_col_name in df.columns else 0
         col4.metric(f"RSI ({rsi_len_input})", f"{last_rsi:.1f}")
-
-        st.markdown("---")
-        st.subheader("✨ Analisis AI (Gemini)")
-        st.write("Dapatkan ringkasan sentimen, teknikal, dan rekomendasi dari Google Gemini.")
-        if st.button("Minta Pendapat AI tentang Saham ini"):
-            with st.spinner("🤖 AI sedang memproses data pasar..."):
-                from ai_analyzer import generate_ai_analysis
-                prediction_text = f"{ml_pred_label} (Probabilitas: {ml_pred_prob:.1f}%)"
-                ai_response = generate_ai_analysis(selected_ticker, last_close, prediction_text, df, news_sentiment)
-                st.info(ai_response)
-        st.markdown("---")
 
         st.subheader("Grafik Harga & Indikator")
         fig = go.Figure()
